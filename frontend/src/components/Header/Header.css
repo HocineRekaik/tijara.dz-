@@ -1,0 +1,200 @@
+.tijara-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+/* Mobile menu toggle */
+.menu-toggle-btn {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* Brand styling */
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-direction: row;
+  cursor: pointer;
+  user-select: none;
+  direction: ltr;
+}
+
+[dir="ltr"] .header-brand {
+  order: -1;
+}
+
+.header-logo-badge {
+  background: var(--accent-gradient);
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 8px 24px rgba(15, 118, 110, 0.2);
+}
+
+.header-logo-text {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.logo-dot {
+  color: var(--accent-color);
+}
+
+/* Navigation links */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-direction: row;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.5rem 0.75rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 12px;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--accent-color);
+}
+
+.nav-link.active {
+  background-color: rgba(15, 118, 110, 0.08);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 12px;
+  right: 12px;
+  height: 3px;
+  background: var(--accent-gradient);
+  border-radius: 999px;
+}
+
+.nav-link--ai {
+  color: var(--ai-color);
+  background-color: rgba(124, 58, 237, 0.08);
+  font-weight: 700;
+}
+
+.nav-link--ai:hover,
+.nav-link--ai.active {
+  color: #ffffff;
+  background: var(--ai-gradient);
+  box-shadow: 0 6px 20px var(--ai-glow);
+  animation: ai-nav-pulse 2.5s ease-in-out infinite;
+}
+
+.nav-link--ai.active::after {
+  display: none;
+}
+
+@keyframes ai-nav-pulse {
+  0%, 100% {
+    box-shadow: 0 6px 20px var(--ai-glow);
+  }
+  50% {
+    box-shadow: 0 6px 28px rgba(124, 58, 237, 0.45);
+  }
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.header-text-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.header-text-btn:hover {
+  color: var(--accent-color);
+  background-color: rgba(15, 118, 110, 0.06);
+}
+
+.header-text-btn--danger {
+  color: #dc2626;
+}
+
+.header-text-btn--danger:hover {
+  color: #b91c1c;
+  background-color: rgba(220, 38, 38, 0.08);
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+  .desktop-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .menu-toggle-btn {
+    display: block;
+  }
+
+  .header-actions {
+    display: none;
+  }
+}

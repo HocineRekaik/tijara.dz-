@@ -1,0 +1,129 @@
+.categories-overview-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.categories-overview__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+.categories-overview__header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border-radius: 28px;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+}
+
+.categories-overview__header h1 {
+  font-size: 2rem;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.categories-overview__header p {
+  max-width: 520px;
+  margin: 0.75rem 0 0;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.categories-overview__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+@media (max-width: 900px) {
+  .categories-overview__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .categories-overview__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.category-overview-card {
+  text-align: right;
+  border: none;
+  border-radius: 24px;
+  background: var(--bg-secondary);
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  color: var(--text-primary);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  position: relative;
+}
+
+.category-overview-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.category-overview-card__img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+  opacity: 0.28;
+}
+
+.category-overview-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.category-overview-card:hover .category-overview-card__img img {
+  transform: scale(1.08);
+}
+
+.category-overview-card__icon,
+.category-overview-card h3,
+.category-overview-card p {
+  position: relative;
+  z-index: 1;
+}
+
+.category-overview-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 18px;
+  background-color: rgba(15, 118, 110, 0.08);
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+}
+
+.category-overview-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.category-overview-card p {
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.75;
+}

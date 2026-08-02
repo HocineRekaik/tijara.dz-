@@ -1,0 +1,111 @@
+:root {
+  /* Design Tokens - Light Theme (Tijara Palette) */
+  --bg-primary: #FAFAFA;
+  --bg-secondary: #FFFFFF;
+  --bg-tertiary: #F2F5F4;
+  --text-primary: #111827;
+  --text-secondary: #6B7280;
+  --text-tertiary: #9CA3AF;
+
+  --accent-color: #0F766E; /* Emerald */
+  --accent-gradient: linear-gradient(135deg, #0F766E 0%, #115E59 100%);
+  --accent-glow: rgba(15, 118, 110, 0.18);
+
+  --ai-color: #7C3AED; /* Tijara AI accent */
+  --ai-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 100%);
+  --ai-glow: rgba(124, 58, 237, 0.25);
+
+  --border-color: #E5E7EB;
+  --card-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(229, 231, 235, 0.8);
+
+  --status-success: #10b981;
+  --status-warning: #f59e0b;
+  --status-danger: #ef4444;
+
+  --font-sans: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Cairo', 'Outfit', 'Inter', sans-serif;
+
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Dark Theme - Tijara Palette */
+[data-theme="dark"] {
+  --bg-primary: #0B1220;
+  --bg-secondary: #101A2E;
+  --bg-tertiary: #16233C;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+
+  --accent-color: #14B8A6;
+  --accent-gradient: linear-gradient(135deg, #0D9488 0%, #115E59 100%);
+  --accent-glow: rgba(20, 184, 166, 0.22);
+
+  --ai-color: #A78BFA;
+  --ai-gradient: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+  --ai-glow: rgba(139, 92, 246, 0.3);
+
+  --border-color: #1F2E4A;
+  --card-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
+  --glass-bg: rgba(16, 26, 46, 0.75);
+  --glass-border: rgba(31, 46, 74, 0.8);
+
+  --status-success: #34d399;
+  --status-warning: #fbbf24;
+  --status-danger: #f87171;
+}
+
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+a {
+  color: var(--accent-color);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(47, 82, 94, 0.4);
+  }
+}

@@ -1,0 +1,52 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Buyer/seller profiles: each user manages their own document only
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Admin accounts: self-read to verify identity; only admins can add new admins
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if isAdmin();
+    }
+
+    // Stores: public sees only approved; sellers create and edit their own;
+    // admins manage everything (approve/reject/delete)
+    match /stores/{storeId} {
+      allow read: if resource.data.status == 'approved'
+        || isAdmin()
+        || (request.auth != null && resource.data.sellerId == request.auth.uid);
+      allow create: if request.auth != null
+        && request.resource.data.sellerId == request.auth.uid;
+      allow update: if isAdmin()
+        || (request.auth != null
+          && resource.data.sellerId == request.auth.uid
+          && request.resource.data.sellerId == request.auth.uid
+          && request.resource.data.status == resource.data.status);
+      allow delete: if isAdmin();
+    }
+
+    // Reviews: anyone can read; authors write their own; admins moderate
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if isAdmin()
+        || (request.auth != null && resource.data.userId == request.auth.uid);
+      allow delete: if isAdmin();
+    }
+
+    // Reported reviews: admin-only management; any authenticated user can report
+    match /reviewReports/{reportId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.auth != null;
+    }
+  }
+}

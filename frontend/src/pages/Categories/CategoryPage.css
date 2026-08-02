@@ -1,0 +1,208 @@
+.category-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Breadcrumb - reuses same styling as AllStores */
+.category-page__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+/* Hero banner for category */
+.category-page__hero {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 2.5rem;
+  background: linear-gradient(135deg, #0F766E 0%, #115E59 100%);
+  border-radius: 18px;
+  margin-bottom: 2rem;
+  color: white;
+  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.25);
+  background-size: cover;
+  background-position: center;
+}
+
+.category-page__hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.category-page__hero-title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+}
+
+.category-page__hero-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #D8D1C3;
+  line-height: 1.5;
+}
+
+@media (max-width: 576px) {
+  .category-page__hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  .category-page__hero-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* Filters */
+.category-page__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+.cat-filter-search-wrapper {
+  flex: 1 1 220px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cat-filter-icon {
+  position: absolute;
+  right: 0.75rem;
+  display: inline-flex;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.cat-filter-input {
+  width: 100%;
+  padding: 0.6rem 2.25rem 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  text-align: right;
+  transition: border-color 0.2s;
+}
+
+.cat-filter-input:focus {
+  border-color: var(--accent-color);
+}
+
+.cat-filter-select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+  text-align: start;
+}
+
+.cat-sort-group {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.sort-chip {
+  padding: 0.5rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  background-color: transparent;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sort-chip:hover {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.sort-chip.active {
+  background: var(--accent-gradient);
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);
+}
+
+/* Count */
+.category-page__count {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 1rem;
+}
+
+/* Grid */
+.category-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .category-page__grid {
+    grid-template-columns: 1fr;
+  }
+  .category-page__filters {
+    flex-direction: column;
+  }
+}
+
+/* Empty state */
+.category-page__empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  color: var(--text-secondary);
+}
+
+.category-page__empty .empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  margin-bottom: 1rem;
+}
+
+.category-page__empty h3 {
+  margin: 0 0 0.5rem;
+  color: var(--text-primary);
+}

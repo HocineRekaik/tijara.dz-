@@ -1,0 +1,17 @@
+.admin-login-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.admin-login-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: var(--accent-gradient);
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(15, 118, 110, 0.35);
+}
