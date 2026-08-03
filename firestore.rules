@@ -30,7 +30,8 @@ service cloud.firestore {
           && resource.data.sellerId == request.auth.uid
           && request.resource.data.sellerId == request.auth.uid
           && request.resource.data.status == resource.data.status);
-      allow delete: if isAdmin();
+      allow delete: if isAdmin()
+        || (request.auth != null && resource.data.sellerId == request.auth.uid);
     }
 
     // Reviews: anyone can read; authors write their own; admins moderate

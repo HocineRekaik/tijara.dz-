@@ -17,6 +17,7 @@ import {
   doc,
   updateDoc,
   setDoc,
+  deleteDoc,
 } from 'firebase/firestore';
 import { auth, db, isFirebaseConfigured } from './firebaseConfig';
 import {
@@ -279,12 +280,10 @@ export const getStoreBySellerId = async (sellerId) => {
     orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(sellerQuery);
-  if (snapshot.empty) {
-    return null;
-  }
-
-  const storeDoc = snapshot.docs[0];
-  return { id: storeDoc.id, ...storeDoc.data() };
+  const storeDoc = snapshot.docs
+    .filter((docItem) => docItem.data().status !== 'deleted')
+    .map((docItem) => ({ id: docItem.id, ...docItem.data() }))[0];
+  return storeDoc || null;
 };
 
 export const getStoresBySeller = async (sellerId) => {
@@ -298,7 +297,9 @@ export const getStoresBySeller = async (sellerId) => {
     orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(sellerQuery);
-  return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
+  return snapshot.docs
+    .filter((docItem) => docItem.data().status !== 'deleted')
+    .map((docItem) => ({ id: docItem.id, ...docItem.data() }));
 };
 
 export const updateStoreRequest = async (storeId, requestData) => {
@@ -340,7 +341,10 @@ export const getStoreById = async (storeId) => {
 
   const docRef = doc(db, 'stores', storeId);
   const docSnap = await getDoc(docRef);
-  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+  if (!docSnap.exists() || docSnap.data().status === 'deleted') {
+    return null;
+  }
+  return { id: docSnap.id, ...docSnap.data() };
 };
 
 export const getStoreBySlug = async (slug) => {
@@ -419,7 +423,7 @@ export const deleteStore = async (storeId) => {
   }
 
   const docRef = doc(db, 'stores', storeId);
-  await updateDoc(docRef, { deletedAt: serverTimestamp(), status: 'deleted' });
+  await deleteDoc(docRef);
 };
 
 export const submitReview = async (reviewData) => {
