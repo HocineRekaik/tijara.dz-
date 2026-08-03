@@ -116,9 +116,9 @@ Alternatively, deploy manually: **New → Web Service** → select repo → root
 
 - `https://<your-app>.vercel.app` loads the site.
 - `https://<your-backend>.onrender.com/api/message` returns `{"status":"success",...}`.
-- On the site, the AI Assistant and image uploads work (image uploads use
-  Firebase Storage first — no backend needed — and fall back to `VITE_API_URL`
-  if Storage is unavailable).
+- On the site, the AI Assistant and image uploads work (image uploads try the
+  backend `/api/upload-image` first, then fall back to Firebase Storage — each
+  attempt has a timeout so the form never hangs).
 - CORS errors mean the `CORS_ORIGIN` on Render doesn't match your Vercel URL.
 
 ## Env var summary

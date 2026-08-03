@@ -3,6 +3,9 @@ import { storage, isFirebaseStorageConfigured } from '../firebase/firebaseConfig
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
+const STORAGE_TIMEOUT_MS = 10000;
+const BACKEND_TIMEOUT_MS = 45000;
+
 export const readFileAsDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -18,6 +21,46 @@ const parseJsonResponse = async (response) => {
   } catch {
     return null;
   }
+};
+
+const withTimeout = (promise, ms, label) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(() => reject(new Error(`انتهت مهلة الرفع عبر ${label}.`)), ms)
+    ),
+  ]);
+
+const downscaleImage = async (file) => {
+  if (!file || !file.type || !file.type.startsWith('image/')) {
+    return file;
+  }
+
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('تعذر قراءة الصورة.'));
+    img.src = dataUrl;
+  });
+
+  const MAX_SIZE = 1600;
+  const scale = Math.min(1, MAX_SIZE / Math.max(image.width, image.height));
+  if (scale === 1) {
+    return file;
+  }
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(image.width * scale);
+  canvas.height = Math.round(image.height * scale);
+  canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+  if (!blob) {
+    return file;
+  }
+  const baseName = String(file.name || 'image').replace(/\.[^.]+$/, '') || 'image';
+  return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
 };
 
 const uploadToFirebaseStorage = async (file) => {
@@ -55,13 +98,33 @@ const uploadViaBackend = async (file) => {
   return payload.url;
 };
 
+let storageFailureUntil = 0;
+
 export const uploadImageFile = async (file) => {
-  if (isFirebaseStorageConfigured()) {
+  const prepared = await downscaleImage(file).catch(() => file);
+
+  const errors = [];
+
+  try {
+    return await withTimeout(uploadViaBackend(prepared), BACKEND_TIMEOUT_MS, 'الخادم');
+  } catch (error) {
+    errors.push(error);
+    console.error('Backend upload failed:', error);
+  }
+
+  if (isFirebaseStorageConfigured() && Date.now() >= storageFailureUntil) {
     try {
-      return await uploadToFirebaseStorage(file);
+      return await withTimeout(
+        uploadToFirebaseStorage(prepared),
+        STORAGE_TIMEOUT_MS,
+        'Firebase Storage'
+      );
     } catch (error) {
-      console.error('Firebase Storage upload failed, falling back to backend:', error);
+      storageFailureUntil = Date.now() + 5 * 60 * 1000;
+      errors.push(error);
+      console.error('Firebase Storage upload failed:', error);
     }
   }
-  return uploadViaBackend(file);
+
+  throw errors[0] || new Error('تعذر رفع الصورة، حاول مرة أخرى.');
 };
