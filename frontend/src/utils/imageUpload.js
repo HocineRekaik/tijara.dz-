@@ -136,6 +136,7 @@ export const uploadImageFile = async (file) => {
 
   const firestoreUrl = await toFirestoreDataUrl(prepared);
   if (firestoreUrl) {
+    storageFailureUntil = Infinity;
     return firestoreUrl;
   }
 
