@@ -178,6 +178,8 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
         ...formValues,
         profileImageUrl: mainUrl,
         galleryImages: galleryUrls,
+        sellerId: currentUser.uid,
+        sellerEmail: currentUser.email,
       };
 
       if (wasEditing) {
