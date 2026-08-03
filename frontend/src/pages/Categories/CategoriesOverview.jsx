@@ -32,7 +32,7 @@ const CategoriesOverview = ({ onNavigate }) => {
           <button
             key={category.id}
             className="category-overview-card"
-            onClick={() => onNavigate('category', { categoryName: category.name })}
+            onClick={() => onNavigate('category-page', { categoryName: category.name })}
           >
             <span className="category-overview-card__img">
               <img src={category.image} alt={t('category.' + category.id)} loading="lazy" />

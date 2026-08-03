@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './SellerProfile.css';
 import Button from '../../components/Button/Button';
-import { getUserProfile, saveUserProfile, getStoresBySeller } from '../../firebase/firebaseService';
+import { getUserProfile, saveUserProfile, getStoresBySeller, deleteStore } from '../../firebase/firebaseService';
 import { getStoreMainImage } from '../../utils/storeImages';
 import { useI18n } from '../../i18n/I18nContext';
-import { Store, Plus, PencilLine, Eye, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Store, Plus, PencilLine, Eye, Clock, CheckCircle2, XCircle, Trash2 } from 'lucide-react';
 
 const getStatusMeta = (t) => ({
   pending: { label: t('seller.statusPending'), className: 'status-pending', icon: Clock },
@@ -42,6 +42,7 @@ const SellerProfile = ({ currentUser, userProfile, onNavigate }) => {
 
   const [myStores, setMyStores] = useState([]);
   const [storesLoading, setStoresLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -120,6 +121,22 @@ const SellerProfile = ({ currentUser, userProfile, onNavigate }) => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteStore = async (storeId) => {
+    if (!window.confirm(t('seller.deleteConfirm'))) {
+      return;
+    }
+    setDeletingId(storeId);
+    try {
+      await deleteStore(storeId);
+      setMyStores((prev) => prev.filter((s) => s.id !== storeId));
+      setStatusMessage(t('seller.deleteSuccess'));
+    } catch (error) {
+      setStatusMessage(error.message || t('seller.deleteError'));
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -224,6 +241,15 @@ const SellerProfile = ({ currentUser, userProfile, onNavigate }) => {
                         {t('common.showPage')}
                       </Button>
                     )}
+                    <Button
+                      variant="secondary"
+                      className="btn-sm btn-danger"
+                      icon={<Trash2 size={15} />}
+                      onClick={() => handleDeleteStore(store.id)}
+                      disabled={deletingId === store.id}
+                    >
+                      {deletingId === store.id ? t('seller.deleting') : t('seller.delete')}
+                    </Button>
                   </div>
                 </div>
               );

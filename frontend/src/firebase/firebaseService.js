@@ -23,6 +23,9 @@ import {
   sanitizeText,
   isValidRating,
   normalizeUrl,
+  normalizeInstagram,
+  normalizeFacebook,
+  normalizeTikTok,
   validateStoreData,
   validateAdminStoreData,
 } from '../utils/storeValidation';
@@ -41,9 +44,9 @@ const buildSafeStoreRequest = (requestData) => ({
   phone: sanitizeText(requestData.phone),
   email: sanitizeText(requestData.email),
   website: normalizeUrl(requestData.website),
-  instagram: sanitizeText(requestData.instagram),
-  facebook: sanitizeText(requestData.facebook),
-  tiktok: sanitizeText(requestData.tiktok),
+  instagram: normalizeInstagram(requestData.instagram),
+  facebook: normalizeFacebook(requestData.facebook),
+  tiktok: normalizeTikTok(requestData.tiktok),
   whatsapp: sanitizeText(requestData.whatsapp),
   description: sanitizeText(requestData.description),
   profileImageUrl: sanitizeText(requestData.profileImageUrl),
@@ -385,7 +388,7 @@ export const getAllStoresForAdmin = async () => {
   }
 
   const snapshot = await getDocs(query(storesCollection, orderBy('createdAt', 'desc')));
-  return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
+  return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() })).filter((store) => store.status !== 'deleted');
 };
 
 export const approveStore = async (storeId) => {
@@ -503,4 +506,22 @@ export const deleteReview = async (reviewId) => {
 
   const docRef = doc(reviewsCollection, reviewId);
   await updateDoc(docRef, { deleted: true, updatedAt: serverTimestamp() });
+};
+
+const subscribersCollection = db ? collection(db, 'subscribers') : null;
+
+export const subscribeToNewsletter = async (email) => {
+  const cleanEmail = sanitizeText(email);
+  if (!cleanEmail || !/^\S+@\S+\.\S+$/.test(cleanEmail)) {
+    throw new Error('يرجى إدخال بريد إلكتروني صالح.');
+  }
+
+  if (isFirebaseConfigured() && subscribersCollection) {
+    await addDoc(subscribersCollection, {
+      email: cleanEmail,
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  return true;
 };

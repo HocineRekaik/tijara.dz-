@@ -1,3 +1,5 @@
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export const readFileAsDataUrl = (file) =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -8,7 +10,7 @@ export const readFileAsDataUrl = (file) =>
 
 export const uploadImageFile = async (file) => {
   const dataUrl = await readFileAsDataUrl(file);
-  const response = await fetch('/api/upload-image', {
+  const response = await fetch(`${API_BASE}/api/upload-image`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: dataUrl }),

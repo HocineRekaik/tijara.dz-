@@ -24,6 +24,20 @@ import {
   Star,
 } from 'lucide-react';
 
+const InstagramIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+  </svg>
+);
+
+const FacebookIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
+
 const updatePageMetadata = (title, description) => {
   document.title = title;
   const metaDescription = document.querySelector('meta[name="description"]') || document.createElement('meta');
@@ -503,51 +517,51 @@ const StoreDetails = ({ storeId, storeSlug, onNavigate, currentUser }) => {
             )}
 
             {store.website && (
-              <div className="sd__contact-item">
+              <a href={store.website} target="_blank" rel="noopener noreferrer" className="sd__social-link sd__social-link--website">
                 <span className="sd__contact-icon">
-                  <Globe size={17} />
+                  <Globe size={18} />
                 </span>
-                <div>
+                <div className="sd__social-content">
                   <span className="sd__contact-label">{t('storedetails.website')}</span>
-                  <span className="sd__contact-value">{store.website}</span>
+                  <span className="sd__social-value">{t('storedetails.visitWebsite') || 'زيارة الموقع'}</span>
                 </div>
-              </div>
+              </a>
             )}
 
             {store.instagram && (
-              <div className="sd__contact-item">
+              <a href={store.instagram} target="_blank" rel="noopener noreferrer" className="sd__social-link sd__social-link--instagram">
                 <span className="sd__contact-icon">
-                  <Camera size={17} />
+                  <InstagramIcon size={18} />
                 </span>
-                <div>
+                <div className="sd__social-content">
                   <span className="sd__contact-label">{t('storedetails.instagram')}</span>
-                  <span className="sd__contact-value">{store.instagram}</span>
+                  <span className="sd__social-value">Instagram</span>
                 </div>
-              </div>
+              </a>
             )}
 
             {store.facebook && (
-              <div className="sd__contact-item">
+              <a href={store.facebook} target="_blank" rel="noopener noreferrer" className="sd__social-link sd__social-link--facebook">
                 <span className="sd__contact-icon">
-                  <ThumbsUp size={17} />
+                  <FacebookIcon size={18} />
                 </span>
-                <div>
+                <div className="sd__social-content">
                   <span className="sd__contact-label">{t('storedetails.facebook')}</span>
-                  <span className="sd__contact-value">{store.facebook}</span>
+                  <span className="sd__social-value">Facebook</span>
                 </div>
-              </div>
+              </a>
             )}
 
             {store.tiktok && (
-              <div className="sd__contact-item">
+              <a href={store.tiktok} target="_blank" rel="noopener noreferrer" className="sd__social-link sd__social-link--tiktok">
                 <span className="sd__contact-icon">
-                  <Music size={17} />
+                  <Music size={18} />
                 </span>
-                <div>
+                <div className="sd__social-content">
                   <span className="sd__contact-label">{t('storedetails.tiktok')}</span>
-                  <span className="sd__contact-value">{store.tiktok}</span>
+                  <span className="sd__social-value">TikTok</span>
                 </div>
-              </div>
+              </a>
             )}
           </div>
 

@@ -671,6 +671,77 @@
   font-weight: 500;
 }
 
+/* Social Media Clickable Links */
+.sd__social-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.sd__social-link:hover {
+  background-color: var(--hover-color, rgba(0,0,0,0.02));
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
+}
+
+[data-theme="dark"] .sd__social-link:hover {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.sd__social-link:last-child {
+  border-bottom: none;
+}
+
+.sd__social-link:hover .sd__contact-icon {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
+.sd__social-link--instagram:hover .sd__contact-icon {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+}
+
+.sd__social-link--facebook:hover .sd__contact-icon {
+  background-color: #1877f2;
+  color: white;
+}
+
+.sd__social-link--tiktok:hover .sd__contact-icon {
+  background-color: #000000;
+  color: white;
+}
+
+[data-theme="dark"] .sd__social-link--tiktok:hover .sd__contact-icon {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.sd__social-link--website:hover .sd__contact-icon {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.sd__social-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.sd__social-value {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
 /* Map Placeholder */
 .sd__map-placeholder {
   padding: 0;

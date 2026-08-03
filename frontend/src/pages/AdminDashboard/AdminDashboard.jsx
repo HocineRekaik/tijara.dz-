@@ -17,6 +17,23 @@ import {
   isAdminUser,
 } from '../../firebase/firebaseService';
 import { useI18n } from '../../i18n/I18nContext';
+import {
+  Plus,
+  ArrowRight,
+  LogOut,
+  CheckCircle,
+  XCircle,
+  Edit,
+  Trash2,
+  Store,
+  Clock,
+  Check,
+  X,
+  ShieldCheck,
+  ShieldAlert,
+  Lock,
+  LogIn,
+} from 'lucide-react';
 
 const emptyForm = {
   title: '',
@@ -187,16 +204,21 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
   if (!currentUser) {
     return (
-      <div className="admin-dashboard" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-        <h2>{t('admin.loginRequired')}</h2>
-        <p>{t('admin.loginRequiredDesc')}</p>
-        <div className="admin-dashboard__guard-actions" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button variant="glow" onClick={() => onNavigate('admin-login')}>
-            {t('admin.adminLogin')}
-          </Button>
-          <Button variant="secondary" onClick={() => onNavigate('auth', { redirect: 'admin-dashboard' })}>
-            {t('admin.sellerLogin')}
-          </Button>
+      <div className="admin-guard-page">
+        <div className="admin-guard-card">
+          <div className="admin-guard-icon">
+            <Lock size={36} />
+          </div>
+          <h2>{t('admin.loginRequired')}</h2>
+          <p>{t('admin.loginRequiredDesc')}</p>
+          <div className="admin-guard-actions">
+            <Button variant="glow" onClick={() => onNavigate('admin-login')} icon={<ShieldCheck size={18} />}>
+              {t('admin.adminLogin')}
+            </Button>
+            <Button variant="secondary" onClick={() => onNavigate('auth', { redirect: 'admin-dashboard' })} icon={<LogIn size={18} />}>
+              {t('admin.sellerLogin')}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -204,24 +226,34 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
   if (adminVerified === null) {
     return (
-      <div className="admin-dashboard" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-        <h2>{t('admin.verifying')}</h2>
+      <div className="admin-guard-page">
+        <div className="admin-guard-card">
+          <div className="admin-guard-icon admin-guard-icon--loading">
+            <ShieldCheck size={36} />
+          </div>
+          <h2>{t('admin.verifying')}</h2>
+        </div>
       </div>
     );
   }
 
   if (!isAdmin) {
     return (
-      <div className="admin-dashboard" style={{ textAlign: 'center', padding: '4rem 1rem' }}>
-        <h2>{t('admin.unauthorized')}</h2>
-        <p>{t('admin.unauthorizedDesc')}</p>
-        <div className="admin-dashboard__guard-actions" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Button variant="glow" onClick={() => onNavigate('admin-login')}>
-            {t('admin.adminLogin')}
-          </Button>
-          <Button variant="secondary" onClick={() => onNavigate('dashboard')}>
-            {t('admin.backToSite')}
-          </Button>
+      <div className="admin-guard-page">
+        <div className="admin-guard-card">
+          <div className="admin-guard-icon">
+            <ShieldAlert size={36} />
+          </div>
+          <h2>{t('admin.unauthorized')}</h2>
+          <p>{t('admin.unauthorizedDesc')}</p>
+          <div className="admin-guard-actions">
+            <Button variant="glow" onClick={() => onNavigate('admin-login')} icon={<ShieldCheck size={18} />}>
+              {t('admin.adminLogin')}
+            </Button>
+            <Button variant="secondary" onClick={() => onNavigate('dashboard')} icon={<ArrowRight size={18} />}>
+              {t('admin.backToSite')}
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -265,13 +297,13 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
         </div>
 
         <div className="sidebar-actions">
-          <Button variant="glow" onClick={startCreate}>
+          <Button variant="glow" onClick={startCreate} icon={<Plus size={17} />}>
             {t('admin.addPage')}
           </Button>
-          <Button variant="secondary" onClick={() => onNavigate('dashboard')}>
+          <Button variant="secondary" onClick={() => onNavigate('dashboard')} icon={<ArrowRight size={17} />}>
             {t('admin.backToSite')}
           </Button>
-          <Button variant="secondary" onClick={handleLogout}>
+          <Button variant="secondary" onClick={handleLogout} icon={<LogOut size={17} />}>
             {t('nav.logout')}
           </Button>
         </div>
@@ -401,19 +433,31 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
         <div className="admin-dashboard__overview">
           <div className="overview-card">
-            <span>{t('admin.totalStores')}</span>
+            <div className="overview-card__header">
+              <span>{t('admin.totalStores')}</span>
+              <Store size={18} className="overview-icon" />
+            </div>
             <strong>{stats.total}</strong>
           </div>
           <div className="overview-card">
-            <span>{t('admin.pending')}</span>
+            <div className="overview-card__header">
+              <span>{t('admin.pending')}</span>
+              <Clock size={18} className="overview-icon overview-icon--pending" />
+            </div>
             <strong>{stats.pending}</strong>
           </div>
           <div className="overview-card">
-            <span>{t('admin.approvedCount')}</span>
+            <div className="overview-card__header">
+              <span>{t('admin.approvedCount')}</span>
+              <CheckCircle size={18} className="overview-icon overview-icon--approved" />
+            </div>
             <strong>{stats.approved}</strong>
           </div>
           <div className="overview-card">
-            <span>{t('admin.rejectedCount')}</span>
+            <div className="overview-card__header">
+              <span>{t('admin.rejectedCount')}</span>
+              <XCircle size={18} className="overview-icon overview-icon--rejected" />
+            </div>
             <strong>{stats.rejected}</strong>
           </div>
         </div>
@@ -424,13 +468,13 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
               {t('common.all')}
             </button>
             <button className={`filter-pill ${filter === 'pending' ? 'active' : ''}`} onClick={() => setFilter('pending')}>
-              Pending
+              {t('admin.pending')}
             </button>
             <button className={`filter-pill ${filter === 'approved' ? 'active' : ''}`} onClick={() => setFilter('approved')}>
-              Approved
+              {t('admin.approvedCount')}
             </button>
             <button className={`filter-pill ${filter === 'rejected' ? 'active' : ''}`} onClick={() => setFilter('rejected')}>
-              Rejected
+              {t('admin.rejectedCount')}
             </button>
           </div>
           {actionMessage && <p className="action-message">{actionMessage}</p>}
@@ -547,19 +591,19 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
                   <div className="details-actions">
                     {selectedStore.status !== 'approved' && (
-                      <Button variant="glow" onClick={() => handleAction(selectedStore.id, 'approve')}>
+                      <Button variant="glow" onClick={() => handleAction(selectedStore.id, 'approve')} icon={<Check size={16} />}>
                         {t('admin.approve')}
                       </Button>
                     )}
                     {selectedStore.status !== 'rejected' && (
-                      <Button variant="secondary" onClick={() => handleAction(selectedStore.id, 'reject')}>
+                      <Button variant="secondary" onClick={() => handleAction(selectedStore.id, 'reject')} icon={<X size={16} />}>
                         {t('admin.reject')}
                       </Button>
                     )}
-                    <Button variant="secondary" onClick={() => startEdit(selectedStore)}>
+                    <Button variant="secondary" onClick={() => startEdit(selectedStore)} icon={<Edit size={16} />}>
                       {t('seller.edit')}
                     </Button>
-                    <Button variant="secondary" onClick={() => handleAction(selectedStore.id, 'delete')}>
+                    <Button variant="secondary" onClick={() => handleAction(selectedStore.id, 'delete')} icon={<Trash2 size={16} />}>
                       {t('admin.delete')}
                     </Button>
                   </div>

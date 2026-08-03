@@ -7,6 +7,8 @@ import { rankStoresForQuery } from '../../utils/aiRanking';
 import { useI18n } from '../../i18n/I18nContext';
 import { Bot, UserRound, Send } from 'lucide-react';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 const suggestedQuestions = [
   'ai.suggested1',
   'ai.suggested2',
@@ -43,7 +45,7 @@ const AIAssistant = ({ onNavigate }) => {
     setErrorMessage('');
 
     try {
-      const aiResponse = await fetch('/api/ai-agent', {
+      const aiResponse = await fetch(`${API_BASE}/api/ai-agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: messageText }),

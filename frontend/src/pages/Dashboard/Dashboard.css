@@ -10,7 +10,7 @@
 /* Hero Section */
 .hero-section {
   position: relative;
-  background: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+  background: var(--hero-bg);
   padding: 4rem 1.5rem 5rem;
   text-align: center;
   overflow: hidden;

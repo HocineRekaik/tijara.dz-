@@ -24,18 +24,20 @@
   --status-warning: #f59e0b;
   --status-danger: #ef4444;
 
+  --hero-bg: linear-gradient(135deg, #FFFFFF 0%, #F0FDFA 100%);
+
   --font-sans: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
   --font-heading: 'Cairo', 'Outfit', 'Inter', sans-serif;
 
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Dark Theme - Tijara Palette */
+/* Dark Theme - True Black */
 [data-theme="dark"] {
-  --bg-primary: #0B1220;
-  --bg-secondary: #101A2E;
-  --bg-tertiary: #16233C;
-  --text-primary: #F3F4F6;
+  --bg-primary: #000000;
+  --bg-secondary: #050505;
+  --bg-tertiary: #0a0a0a;
+  --text-primary: #FFFFFF;
   --text-secondary: #9CA3AF;
   --text-tertiary: #6B7280;
 
@@ -47,14 +49,16 @@
   --ai-gradient: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
   --ai-glow: rgba(139, 92, 246, 0.3);
 
-  --border-color: #1F2E4A;
-  --card-shadow: 0px 4px 20px rgba(0, 0, 0, 0.35);
-  --glass-bg: rgba(16, 26, 46, 0.75);
-  --glass-border: rgba(31, 46, 74, 0.8);
+  --border-color: #1f1f1f;
+  --card-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+  --glass-bg: rgba(5, 5, 5, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
 
   --status-success: #34d399;
   --status-warning: #fbbf24;
   --status-danger: #f87171;
+
+  --hero-bg: linear-gradient(135deg, #050505 0%, #000000 100%);
 }
 
 

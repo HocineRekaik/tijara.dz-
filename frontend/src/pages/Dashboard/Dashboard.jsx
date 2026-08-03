@@ -57,7 +57,7 @@ const Dashboard = ({ onViewStore, onNavigate }) => {
   };
 
   const handleCategoryClick = (categoryName) => {
-    setSelectedCategory(categoryName === selectedCategory ? null : categoryName);
+    onNavigate('category-page', { categoryName });
   };
 
   const visibleStores = useMemo(() => {
@@ -146,22 +146,7 @@ const Dashboard = ({ onViewStore, onNavigate }) => {
             </button>
           </div>
 
-          <div className="hero-search-type">
-            <button
-              type="button"
-              className={`search-type-pill ${searchScope === 'stores' ? 'active' : ''}`}
-              onClick={() => setSearchScope('stores')}
-            >
-              {t('dashboard.pillStores')}
-            </button>
-            <button
-              type="button"
-              className={`search-type-pill ${searchScope === 'products' ? 'active' : ''}`}
-              onClick={() => setSearchScope('products')}
-            >
-              {t('dashboard.pillProducts')}
-            </button>
-          </div>
+
 
           <form className="hero-search-form" onSubmit={handleSearchSubmit}>
             <div className="search-input-wrapper">
