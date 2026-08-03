@@ -196,11 +196,6 @@ const StoreDetails = ({ storeId, storeSlug, onNavigate, currentUser }) => {
       return;
     }
 
-    if (!reviewForm.comment.trim()) {
-      setActionMessage(t('storedetails.commentRequired'));
-      return;
-    }
-
     setSubmitting(true);
 
     try {
@@ -421,7 +416,7 @@ const StoreDetails = ({ storeId, storeSlug, onNavigate, currentUser }) => {
                     <div className="sd__review-head">
                       <div>
                         <strong>{review.userName || t('storedetails.anonymous')}</strong>
-                        <p>{review.comment}</p>
+                        {review.comment && <p>{review.comment}</p>}
                       </div>
                       <span className="sd__review-stars">{renderStars(review.rating)}</span>
                     </div>

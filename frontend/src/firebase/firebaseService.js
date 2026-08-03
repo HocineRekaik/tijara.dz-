@@ -70,9 +70,6 @@ const validateReviewData = (review) => {
   if (!review.userId || sanitizeText(review.userId).length === 0) {
     throw new Error('معرف المستخدم غير صالح.');
   }
-  if (!review.comment || sanitizeText(review.comment).length < 5) {
-    throw new Error('التعليق يجب أن يكون طويلاً بما يكفي.');
-  }
   if (!isValidRating(Number(review.rating))) {
     throw new Error('التقييم يجب أن يكون بين 1 و 5.');
   }
