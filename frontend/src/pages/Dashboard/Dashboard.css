@@ -577,26 +577,38 @@
 /* Mobile: harmonized dimensions (does not affect desktop) */
 @media (max-width: 576px) {
   .hero-section {
-    padding: 2.5rem 1.25rem 3rem;
+    padding: 1.75rem 1.25rem 2.25rem;
     margin: 0.75rem 0.75rem 0;
     border-radius: 20px;
   }
 
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    line-height: 1.3;
   }
 
   .hero-subtitle {
-    font-size: 0.95rem;
-    line-height: 1.7;
+    font-size: 0.9rem;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .hero-content {
+    gap: 0.9rem;
   }
 
   .hero-user-tab {
-    padding: 0.55rem 1rem;
+    padding: 0.5rem 0.9rem;
     font-size: 0.85rem;
   }
 
+  .hero-meta-cards {
+    margin-top: 0.25rem;
+  }
+
   .hero-search-form {
+    margin-top: 0.25rem;
+    padding: 0.9rem;
     border-radius: 18px;
   }
 
@@ -606,6 +618,7 @@
   }
 
   .hero-actions-row {
+    margin-top: 0.25rem;
     flex-direction: column;
     align-items: stretch;
   }
