@@ -1,3 +1,6 @@
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage, isFirebaseStorageConfigured } from '../firebase/firebaseConfig';
+
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const readFileAsDataUrl = (file) =>
@@ -17,7 +20,18 @@ const parseJsonResponse = async (response) => {
   }
 };
 
-export const uploadImageFile = async (file) => {
+const uploadToFirebaseStorage = async (file) => {
+  const safeName = String(file.name || 'image')
+    .replace(/[^\w.-]+/g, '_')
+    .slice(-60);
+  const extension = safeName.includes('.') ? safeName.slice(safeName.lastIndexOf('.')) : '';
+  const path = `uploads/${Date.now()}-${Math.random().toString(36).slice(2)}${extension}`;
+  const fileRef = ref(storage, path);
+  await uploadBytes(fileRef, file);
+  return getDownloadURL(fileRef);
+};
+
+const uploadViaBackend = async (file) => {
   const dataUrl = await readFileAsDataUrl(file);
 
   let response;
@@ -32,8 +46,22 @@ export const uploadImageFile = async (file) => {
   }
 
   const payload = await parseJsonResponse(response);
-  if (!response.ok || !payload?.success) {
-    throw new Error(payload?.error || 'تعذر رفع الصورة، حاول مرة أخرى.');
+  if (!response.ok || !payload?.success || !payload?.url) {
+    throw new Error(
+      payload?.error ||
+        'تعذر رفع الصورة. تحقق من إعدادات الخادم (VITE_API_URL) ثم أعد المحاولة.'
+    );
   }
   return payload.url;
+};
+
+export const uploadImageFile = async (file) => {
+  if (isFirebaseStorageConfigured()) {
+    try {
+      return await uploadToFirebaseStorage(file);
+    } catch (error) {
+      console.error('Firebase Storage upload failed, falling back to backend:', error);
+    }
+  }
+  return uploadViaBackend(file);
 };

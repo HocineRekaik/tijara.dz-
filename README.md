@@ -96,6 +96,14 @@ Alternatively, deploy manually: **New → Web Service** → select repo → root
   npx firebase-tools deploy --only firestore
   ```
 
+- Enable **Firebase Storage** and deploy its rules (used by image uploads; works
+  on Vercel without the backend — the backend `/api/upload-image` is only a
+  fallback):
+
+  ```bash
+  npx firebase-tools deploy --only storage
+  ```
+
 - Create at least one admin document to unlock the admin dashboard:
 
   ```
@@ -108,7 +116,9 @@ Alternatively, deploy manually: **New → Web Service** → select repo → root
 
 - `https://<your-app>.vercel.app` loads the site.
 - `https://<your-backend>.onrender.com/api/message` returns `{"status":"success",...}`.
-- On the site, the AI Assistant and image uploads work (they call `VITE_API_URL`).
+- On the site, the AI Assistant and image uploads work (image uploads use
+  Firebase Storage first — no backend needed — and fall back to `VITE_API_URL`
+  if Storage is unavailable).
 - CORS errors mean the `CORS_ORIGIN` on Render doesn't match your Vercel URL.
 
 ## Env var summary
