@@ -1,6 +1,21 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { validateStoreData, hasContactMethod, normalizeUrl } from './storeValidation.js';
+import {
+  validateStoreData,
+  hasContactMethod,
+  normalizeUrl,
+  normalizeInstagram,
+  normalizeFacebook,
+  normalizeTikTok,
+} from './storeValidation.js';
+
+const normalizeFields = (payload) => ({
+  ...payload,
+  website: normalizeUrl(payload.website),
+  instagram: normalizeInstagram(payload.instagram),
+  facebook: normalizeFacebook(payload.facebook),
+  tiktok: normalizeTikTok(payload.tiktok),
+});
 
 const requiredOnly = {
   title: 'متجر الهواتف',
@@ -18,7 +33,7 @@ test('submits with only required fields', () => {
 
 test('submits with required fields + instagram only', () => {
   const payload = { ...requiredOnly, phone: '', email: '', website: '', whatsapp: '', instagram: '@store.dz' };
-  assert.doesNotThrow(() => validateStoreData(payload));
+  assert.doesNotThrow(() => validateStoreData(normalizeFields(payload)));
 });
 
 test('submits with required fields + multiple social links', () => {
@@ -32,7 +47,7 @@ test('submits with required fields + multiple social links', () => {
     website: 'store.dz',
     email: 'contact@store.dz',
   };
-  assert.doesNotThrow(() => validateStoreData(payload));
+  assert.doesNotThrow(() => validateStoreData(normalizeFields(payload)));
 });
 
 test('accepts a very short description and short names', () => {
@@ -49,10 +64,10 @@ test('accepts free-form values for optional fields', () => {
     instagram: 'handle with spaces and symbols *%$#',
     facebook: 'x'.repeat(200),
   };
-  assert.doesNotThrow(() => validateStoreData(payload));
+  assert.doesNotThrow(() => validateStoreData(normalizeFields(payload)));
 });
 
-test('fails when no contact method is provided', () => {
+test('submits with no contact method provided', () => {
   const payload = {
     ...requiredOnly,
     phone: '',
@@ -64,13 +79,23 @@ test('fails when no contact method is provided', () => {
     tiktok: '',
   };
   assert.equal(hasContactMethod(payload), false);
-  assert.throws(() => validateStoreData(payload));
+  assert.doesNotThrow(() => validateStoreData(payload));
+});
+
+test('submits with only title and category (all optional fields empty)', () => {
+  const payload = { title: 'متجر الهواتف', category: 'الإلكترونيات' };
+  assert.doesNotThrow(() => validateStoreData(payload));
 });
 
 test('fails when a required field is missing', () => {
-  assert.throws(() => validateStoreData({ ...requiredOnly, city: '' }));
-  assert.throws(() => validateStoreData({ ...requiredOnly, description: '' }));
-  assert.throws(() => validateStoreData({ ...requiredOnly, wilaya: '' }));
+  assert.throws(() => validateStoreData({ ...requiredOnly, title: '' }));
+  assert.throws(() => validateStoreData({ ...requiredOnly, category: '' }));
+});
+
+test('does not fail when optional fields are empty', () => {
+  assert.doesNotThrow(() => validateStoreData({ ...requiredOnly, city: '' }));
+  assert.doesNotThrow(() => validateStoreData({ ...requiredOnly, description: '' }));
+  assert.doesNotThrow(() => validateStoreData({ ...requiredOnly, wilaya: '' }));
 });
 
 test('normalizes website URLs', () => {

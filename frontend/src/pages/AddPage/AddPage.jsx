@@ -3,7 +3,6 @@ import './AddPage.css';
 import Button from '../../components/Button/Button';
 import { categories, wilayas } from '../../data/mockData';
 import { getStoreById, saveStoreRequest, updateStoreRequest } from '../../firebase/firebaseService';
-import { CONTACT_FIELDS } from '../../utils/storeValidation';
 import { getStoreMainImage, getStoreGalleryImages } from '../../utils/storeImages';
 import useImageUploads from '../../hooks/useImageUploads';
 import { MainImageField, GalleryImageField } from '../../components/ImageUploader/ImageUploader';
@@ -84,14 +83,6 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
 
     if (!currentUser) {
       onNavigate('auth', { redirect: 'add-page' });
-      return;
-    }
-
-    const hasContactMethod = CONTACT_FIELDS.some(
-      (field) => String(formValues[field] || '').trim() !== ''
-    );
-    if (!hasContactMethod) {
-      setSubmitError(t('addpage.contactRequired'));
       return;
     }
 
@@ -218,7 +209,7 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
 
               <label>
                 {t('addpage.wilayaField')}
-                <select name="wilaya" value={formValues.wilaya} onChange={handleChange} required>
+                <select name="wilaya" value={formValues.wilaya} onChange={handleChange}>
                   <option value="">{t('addpage.chooseWilaya')}</option>
                   {wilayas.map((wilaya) => (
                     <option key={wilaya.id} value={wilaya.name}>
@@ -235,7 +226,6 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                   value={formValues.city}
                   onChange={handleChange}
                   placeholder={t('addpage.cityPlaceholder')}
-                  required
                 />
               </label>
 
@@ -319,7 +309,6 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                 onChange={handleChange}
                 rows="5"
                 placeholder={t('addpage.descriptionPlaceholder')}
-                required
               />
             </label>
 

@@ -350,7 +350,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
               <label className="admin-field">
                 <span>{t('addpage.wilayaField')}</span>
-                <select name="wilaya" value={formValues.wilaya} onChange={handleFormChange} required>
+                <select name="wilaya" value={formValues.wilaya} onChange={handleFormChange}>
                   <option value="">{t('addpage.chooseWilaya')}</option>
                   {wilayas.map((wilaya) => (
                     <option key={wilaya.id} value={wilaya.name}>
@@ -362,7 +362,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
               <label className="admin-field">
                 <span>{t('addpage.cityField')}</span>
-                <input name="city" value={formValues.city} onChange={handleFormChange} placeholder={t('admin.cityPlaceholder')} required />
+                <input name="city" value={formValues.city} onChange={handleFormChange} placeholder={t('admin.cityPlaceholder')} />
               </label>
 
               <div className="admin-field admin-field--full">
@@ -371,7 +371,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
               <label className="admin-field admin-field--full">
                 <span>{t('admin.descriptionField')}</span>
-                <textarea name="description" value={formValues.description} onChange={handleFormChange} placeholder={t('admin.descriptionPlaceholder')} rows="3" required />
+                <textarea name="description" value={formValues.description} onChange={handleFormChange} placeholder={t('admin.descriptionPlaceholder')} rows="3" />
               </label>
 
               <label className="admin-field">

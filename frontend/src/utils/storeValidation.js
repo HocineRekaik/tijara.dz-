@@ -52,20 +52,6 @@ export const validateStoreData = (store) => {
   if (!store.category || sanitizeText(store.category).length === 0) {
     throw new Error('يرجى اختيار تصنيف.');
   }
-  if (!store.wilaya || sanitizeText(store.wilaya).length === 0) {
-    throw new Error('يرجى اختيار الولاية.');
-  }
-  if (!store.city || sanitizeText(store.city).length === 0) {
-    throw new Error('يرجى إدخال المدينة.');
-  }
-  if (!store.description || sanitizeText(store.description).length === 0) {
-    throw new Error('يرجى إدخال وصف قصير.');
-  }
-  if (!hasContactMethod(store)) {
-    throw new Error(
-      'يرجى إدخال وسيلة تواصل واحدة على الأقل (هاتف، بريد إلكتروني، واتساب، موقع، أو شبكة اجتماعية).'
-    );
-  }
 
   // Validate URLs are properly formed
   ['website', 'instagram', 'facebook', 'tiktok'].forEach((field) => {
@@ -81,15 +67,6 @@ export const validateAdminStoreData = (store) => {
   }
   if (!store.category || sanitizeText(store.category).length === 0) {
     throw new Error('يرجى اختيار تصنيف.');
-  }
-  if (!store.wilaya || sanitizeText(store.wilaya).length === 0) {
-    throw new Error('يرجى اختيار الولاية.');
-  }
-  if (!store.city || sanitizeText(store.city).length === 0) {
-    throw new Error('يرجى إدخال المدينة.');
-  }
-  if (!store.description || sanitizeText(store.description).length === 0) {
-    throw new Error('يرجى إدخال وصف قصير.');
   }
 
   // Validate URLs are properly formed
