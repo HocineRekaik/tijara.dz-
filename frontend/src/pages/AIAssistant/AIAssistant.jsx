@@ -45,15 +45,27 @@ const AIAssistant = ({ onNavigate }) => {
     setErrorMessage('');
 
     try {
-      const aiResponse = await fetch(`${API_BASE}/api/ai-agent`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: messageText }),
-      });
+      let aiResponse;
+      try {
+        aiResponse = await fetch(`${API_BASE}/api/ai-agent`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: messageText }),
+        });
+      } catch {
+        throw new Error(t('ai.connectError'));
+      }
 
-      const aiPayload = await aiResponse.json();
-      if (!aiResponse.ok || !aiPayload.success) {
-        throw new Error(aiPayload.error || t('ai.connectError'));
+      const aiText = await aiResponse.text();
+      let aiPayload = null;
+      try {
+        aiPayload = JSON.parse(aiText);
+      } catch {
+        aiPayload = null;
+      }
+
+      if (!aiResponse.ok || !aiPayload?.success) {
+        throw new Error(aiPayload?.error || t('ai.connectError'));
       }
 
       const stores = await getStores();
