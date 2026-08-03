@@ -31,7 +31,7 @@ const withTimeout = (promise, ms, label) =>
     ),
   ]);
 
-const downscaleImage = async (file) => {
+const downscaleImage = async (file, maxSize, quality = 0.85) => {
   if (!file || !file.type || !file.type.startsWith('image/')) {
     return file;
   }
@@ -44,8 +44,7 @@ const downscaleImage = async (file) => {
     img.src = dataUrl;
   });
 
-  const MAX_SIZE = 1600;
-  const scale = Math.min(1, MAX_SIZE / Math.max(image.width, image.height));
+  const scale = Math.min(1, maxSize / Math.max(image.width, image.height));
   if (scale === 1) {
     return file;
   }
@@ -55,12 +54,21 @@ const downscaleImage = async (file) => {
   canvas.height = Math.round(image.height * scale);
   canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
 
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
   if (!blob) {
     return file;
   }
   const baseName = String(file.name || 'image').replace(/\.[^.]+$/, '') || 'image';
   return new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
+};
+
+const toFirestoreDataUrl = async (file) => {
+  const small = await downscaleImage(file, 700, 0.65);
+  if (small !== file) {
+    return readFileAsDataUrl(small);
+  }
+  const dataUrl = await readFileAsDataUrl(file);
+  return dataUrl.length <= 400 * 1024 ? dataUrl : null;
 };
 
 const uploadToFirebaseStorage = async (file) => {
@@ -92,7 +100,7 @@ const uploadViaBackend = async (file) => {
   if (!response.ok || !payload?.success || !payload?.url) {
     throw new Error(
       payload?.error ||
-        'تعذر رفع الصورة. تحقق من إعدادات الخادم (VITE_API_URL) ثم أعد المحاولة.'
+        `تعذر رفع الصورة عبر الخادم (استجابة ${response.status}). تأكد من إعداد VITE_API_URL ثم أعد المحاولة.`
     );
   }
   return payload.url;
@@ -101,7 +109,7 @@ const uploadViaBackend = async (file) => {
 let storageFailureUntil = 0;
 
 export const uploadImageFile = async (file) => {
-  const prepared = await downscaleImage(file).catch(() => file);
+  const prepared = await downscaleImage(file, 1600).catch(() => file);
 
   const errors = [];
 
@@ -126,5 +134,13 @@ export const uploadImageFile = async (file) => {
     }
   }
 
-  throw errors[0] || new Error('تعذر رفع الصورة، حاول مرة أخرى.');
+  const firestoreUrl = await toFirestoreDataUrl(prepared);
+  if (firestoreUrl) {
+    return firestoreUrl;
+  }
+
+  throw new Error(
+    errors[0]?.message ||
+      'تعذر رفع الصورة. تأكد من تفعيل Firebase Storage (Build > Storage) أو إعداد VITE_API_URL ثم أعد المحاولة.'
+  );
 };
