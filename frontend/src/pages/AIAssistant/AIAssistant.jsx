@@ -4,6 +4,7 @@ import Button from '../../components/Button/Button';
 import StoreCard from '../../components/StoreCard/StoreCard';
 import { getStores, getReviewsForStore } from '../../firebase/firebaseService';
 import { rankStoresForQuery } from '../../utils/aiRanking';
+import { extractIntentFromQuery, buildFallbackText, inferCategory } from '../../utils/aiIntent';
 import { useI18n } from '../../i18n/I18nContext';
 import { Bot, UserRound, Send } from 'lucide-react';
 
@@ -45,28 +46,40 @@ const AIAssistant = ({ onNavigate }) => {
     setErrorMessage('');
 
     try {
-      let aiResponse;
+      let intent = null;
+      let botResponseText = '';
+
       try {
-        aiResponse = await fetch(`${API_BASE}/api/ai-agent`, {
+        const aiResponse = await fetch(`${API_BASE}/api/ai-agent`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: messageText }),
         });
+        const aiText = await aiResponse.text();
+        let aiPayload = null;
+        try {
+          aiPayload = JSON.parse(aiText);
+        } catch {
+          aiPayload = null;
+        }
+        if (aiResponse.ok && aiPayload?.success) {
+          botResponseText = aiPayload.responseText || '';
+          intent = aiPayload.extracted || null;
+        }
       } catch {
-        throw new Error(t('ai.connectError'));
+        intent = null;
       }
 
-      const aiText = await aiResponse.text();
-      let aiPayload = null;
-      try {
-        aiPayload = JSON.parse(aiText);
-      } catch {
-        aiPayload = null;
+      if (!intent) {
+        intent = extractIntentFromQuery(messageText);
+        botResponseText = buildFallbackText(intent);
       }
 
-      if (!aiResponse.ok || !aiPayload?.success) {
-        throw new Error(aiPayload?.error || t('ai.connectError'));
-      }
+      const effectiveCategory =
+        intent.category && intent.category !== 'عام'
+          ? intent.category
+          : inferCategory(intent.product || '');
+      intent = { ...intent, category: effectiveCategory || 'عام' };
 
       const stores = await getStores();
       const storesWithReviews = await Promise.all(
@@ -79,10 +92,11 @@ const AIAssistant = ({ onNavigate }) => {
         })
       );
 
-      const rankedStores = rankStoresForQuery(storesWithReviews, aiPayload.extracted || {}).slice(0, 6);
-      const botText = rankedStores.length > 0
-        ? `${aiPayload.responseText || t('ai.foundStores')}\n\n${t('ai.resultsRankingNote')}`
-        : t('ai.noResults');
+      const rankedStores = rankStoresForQuery(storesWithReviews, intent).slice(0, 6);
+      const botText =
+        rankedStores.length > 0
+          ? `${botResponseText || t('ai.foundStores')}\n\n${t('ai.resultsRankingNote')}`
+          : t('ai.noResults');
 
       setMessages((prev) => [
         ...prev,

@@ -2,7 +2,7 @@ const normalizeText = (value = '') =>
   String(value)
     .toLowerCase()
     .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u0300-\u036f\u064b-\u065f\u0670]/g, '')
     .trim();
 
 const buildTokens = (value = '') =>
@@ -16,6 +16,8 @@ export const rankStoresForQuery = (stores = [], intent = {}) => {
   const wilaya = normalizeText(intent.wilaya || '');
   const city = normalizeText(intent.city || '');
   const preferences = normalizeText(intent.preferences || '');
+  const productTokens = buildTokens(product);
+  const isGenericCategory = category === 'عام' || category === '';
 
   return stores
     .map((store) => {
@@ -23,22 +25,43 @@ export const rankStoresForQuery = (stores = [], intent = {}) => {
         store.title,
         store.description,
         store.category,
+        store.subcategory,
         store.wilaya,
         store.city,
-        store.subcategory,
+        store.about,
         ...(store.tags || []),
         ...(store.products || []).map((item) => item.name),
       ].join(' ');
 
       const normalizedStoreText = normalizeText(storeText);
-      const score = [
-        category && normalizedStoreText.includes(category) ? 4 : 0,
-        category && normalizeText(store.category).includes(category) ? 2 : 0,
-        product && normalizedStoreText.includes(product) ? 4 : 0,
-        wilaya && normalizeText(store.wilaya).includes(wilaya) ? 3 : 0,
-        city && normalizeText(store.city).includes(city) ? 2 : 0,
-        preferences && normalizedStoreText.includes(preferences) ? 1 : 0,
-      ].reduce((sum, value) => sum + value, 0);
+      const storeTokens = new Set(buildTokens(storeText));
+
+      let score = 0;
+      if (!isGenericCategory) {
+        if (
+          normalizeText(store.category).includes(category) ||
+          normalizeText(store.subcategory).includes(category)
+        ) {
+          score += 6;
+        } else if (normalizedStoreText.includes(category)) {
+          score += 3;
+        }
+      }
+
+      const matchedTokens = productTokens.filter((token) => storeTokens.has(token));
+      if (productTokens.length > 0 && matchedTokens.length > 0) {
+        score += (matchedTokens.length / productTokens.length) * 6;
+      }
+
+      if (wilaya && normalizeText(store.wilaya).includes(wilaya)) {
+        score += 3;
+      }
+      if (city && normalizeText(store.city).includes(city)) {
+        score += 2;
+      }
+      if (preferences && normalizedStoreText.includes(preferences)) {
+        score += 1;
+      }
 
       const rating = Number(store.rating || 0);
       const reviewCount = Number(store.reviewCount || 0);

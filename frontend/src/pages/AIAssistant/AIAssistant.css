@@ -307,3 +307,116 @@
     flex-direction: column;
   }
 }
+
+/* Mobile: compact dimensions so icons are not oversized */
+@media (max-width: 720px) {
+  .ai-page {
+    padding: 1.25rem 1rem 2.5rem;
+  }
+
+  .ai-page__breadcrumb {
+    margin-bottom: 1rem;
+  }
+
+  .ai-page__hero {
+    padding: 1.35rem 1.1rem;
+    border-radius: 22px;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .ai-page__eyebrow {
+    margin-bottom: 0.5rem;
+  }
+
+  .ai-page__title {
+    font-size: 1.65rem;
+  }
+
+  .ai-page__subtitle {
+    font-size: 0.92rem;
+    margin-top: 0.65rem;
+    line-height: 1.7;
+  }
+
+  .ai-chat-shell {
+    gap: 1rem;
+  }
+
+  .ai-chat__messages {
+    padding: 0.9rem;
+    border-radius: 18px;
+    min-height: 330px;
+    gap: 0.8rem;
+  }
+
+  .ai-message__avatar {
+    min-width: 34px;
+    min-height: 34px;
+    border-radius: 12px;
+  }
+
+  .ai-message__avatar svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .ai-message__bubble {
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.65;
+  }
+
+  .ai-suggestions-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.65rem;
+  }
+
+  .ai-suggestion-pill {
+    padding: 0.7rem 0.85rem;
+    border-radius: 14px;
+    font-size: 0.85rem;
+  }
+
+  .ai-input-row {
+    padding: 0.65rem;
+    border-radius: 16px;
+    gap: 0.55rem;
+  }
+
+  .ai-input {
+    padding: 0.8rem 0.85rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+  }
+
+  .ai-input-row .tijara-btn {
+    padding: 0.7rem 1rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    min-height: 0;
+  }
+
+  .ai-sidebar-card {
+    padding: 1.15rem;
+    border-radius: 16px;
+  }
+
+  .ai-error {
+    font-size: 0.9rem;
+  }
+
+  .ai-results-section {
+    margin-top: 1.75rem;
+  }
+
+  .ai-results-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .ai-results-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import { executeFirestoreTool, firestoreToolDefinitions, isFirestoreConfigured } from './firestoreTools.js';
 
 dotenv.config();
 
@@ -44,12 +45,20 @@ const normalizeText = (value = '') =>
 const extractIntentFromQuery = (query = '') => {
   const text = normalizeText(query);
 
-  const productMatch = text.match(/(?:أريد|أبحث|ابحث|أحتاج|أرغب|اشتري|شراء|buy|want|looking for)\s+(?:عن\s+)?([\p{L}\p{N}\s-]+?)(?=\s+في|\s+ب|\s+في\s+ال|\s+ل|$)/u) || [];
-  const categoryMatch = text.match(/(?:تصنيف|مجال|فئة|نوع)\s+([\p{L}\p{N}\s-]+)/u);
-  const wilayaMatch = text.match(/(?:في|ب|بمدينة|بالمدينة)\s+([\p{L}\p{N}\s-]+)/u);
-  const cityMatch = text.match(/(?:مدينة|المدينة)\s+([\p{L}\p{N}\s-]+)/u);
+  const productMatch = text.match(/(?:أريد|أبحث|ابحث|أحتاج|أرغب|اشتري|أشتري|شراء|buy|want|looking for)\s+(?:عن\s+)?(?:to\s+)?(?:an\s+|a\s+|some\s+|ك\s+|متجر\s+)?([\p{L}\p{N}\s-]+?)(?=\s+في|\s+ب\s|\s+بمدينة|\s+بالمدينة|\s+in\s+|\s+for\s+|\s+متجر|$)/u) || [];
+  const categoryMatch = text.match(/(?:تصنيف|مجال|فئة|نوع|category|category for)\s+([\p{L}\p{N}\s-]+)/u);
+  const wilayaMatch = text.match(/(?:في\s+|ب\s+|بمدينة|بالمدينة|in\s+|at\s+)([\p{L}\p{N}\s-]+?)(?=\s+(?:مدينة|المدينة|city)|$)/u);
+  const cityMatch = text.match(/(?:مدينة|المدينة|city\s+of\s+|in\s+)([\p{L}\p{N}\s-]+)/u);
 
-  const product = productMatch[1]?.trim() || '';
+  // Clean the captured product: strip common English fillers, keep 1-2 tokens.
+  const rawProduct = productMatch[1]?.trim() || '';
+  let product = rawProduct
+    .replace(/\b(?:to|for|the|an|a|some|me|i|want|buy|please|also)\b/g, ' ')
+    .trim();
+  if (product.includes(' ')) {
+    product = product.split(/\s+/).slice(0, 2).join(' ');
+  }
+
   const category = categoryMatch?.[1]?.trim() || '';
   const wilaya = wilayaMatch?.[1]?.trim() || '';
   const city = cityMatch?.[1]?.trim() || '';
@@ -69,7 +78,7 @@ const extractIntentFromQuery = (query = '') => {
 const buildFallbackIntent = (query) => {
   const intent = extractIntentFromQuery(query);
   return {
-    responseText: `سأبحث عن ${intent.product || 'المنتجات'} في ${intent.wilaya || 'الجزائر'} و سأركز على ${intent.category || 'المتاجر الإلكترونية المناسبة'}.`,
+    responseText: `سأبحث عن ${intent.product || 'المنتجات'} في ${intent.wilaya || 'الجزائر'} و سأركز على المتاجر الإلكترونية المعتمدة.`,
     extracted: intent,
   };
 };
@@ -114,6 +123,153 @@ const askOpenAI = async (query) => {
 
   return JSON.parse(content);
 };
+
+const askGemini = async (message) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not set in the backend .env file');
+  }
+
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: message }] }],
+    }),
+  });
+
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(payload?.error?.message || `Gemini API error (${response.status})`);
+  }
+
+  const text =
+    payload?.candidates?.[0]?.content?.parts?.map((part) => part.text).join('') || '';
+  if (!text) {
+    throw new Error('Gemini returned an empty response');
+  }
+  return text;
+};
+
+const SYSTEM_PROMPT = [
+  'You are Tijara AI, a helpful assistant that finds Algerian e-commerce stores (pages) on Tijara.dz.',
+  'Use ONLY the registered tools to look up real, approved stores. Never invent stores, ratings, or information.',
+  'Tools only return approved stores. Search in French, Arabic, or English as the user does.',
+  'Before answering a user request, decide which tool to call. Call at most 2 tools total.',
+  'When you have the tool results:',
+  '- Summarize and answer naturally in the user’s language (French/Arabic/English).',
+  '- Be honest: if no results are found, say none currently matches.',
+  '- Provide the matching “id” and short reason for each proposed store.',
+  '- Never invent store details, ratings, or products.',
+].join(' ');
+
+const runGeminiAgent = async (query) => {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not set in the backend .env file');
+  }
+  if (!isFirestoreConfigured()) {
+    throw new Error('Firestore is not configured on the server');
+  }
+
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const contents = [
+    {
+      role: 'user',
+      parts: [{ text: query }],
+    },
+  ];
+
+  const tools = [{ functionDeclarations: firestoreToolDefinitions }];
+  let collectedStores = [];
+
+  for (let turn = 0; turn < 3; turn += 1) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: {
+          role: 'system',
+          parts: [{ text: SYSTEM_PROMPT }],
+        },
+        contents,
+        tools,
+      }),
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload?.error?.message || `Gemini API error (${response.status})`);
+    }
+
+    const candidate = payload?.candidates?.[0];
+    const parts = candidate?.content?.parts || [];
+    const functionCalls = parts.filter((part) => part.functionCall);
+
+    if (functionCalls.length === 0) {
+      const text = parts.map((part) => part.text || '').join('').trim();
+      return { text, stores: collectedStores };
+    }
+
+    const functionResponses = [];
+    for (const { functionCall } of functionCalls) {
+      const { name, args } = functionCall;
+      try {
+        const result = await executeFirestoreTool(name, args || {});
+        const stores = result.stores || (result.store ? [result.store] : []);
+        collectedStores = mergeStores(collectedStores, stores);
+        functionResponses.push({ name, content: { result } });
+      } catch (error) {
+        functionResponses.push({ name, content: { error: error.message || 'Tool execution failed' } });
+      }
+    }
+
+    contents.push({
+      role: 'model',
+      parts: functionCalls.map(({ functionCall }) => ({
+        functionCall: { name: functionCall.name, args: functionCall.args },
+      })),
+    });
+    contents.push({
+      role: 'user',
+      parts: functionResponses.map(({ name, content }) => ({
+        functionResponse: { name, response: content },
+      })),
+    });
+  }
+
+  throw new Error('Gemini agent ran too many tool turns');
+};
+
+const mergeStores = (current, incoming) => {
+  const seen = new Set(current.map((store) => store.id));
+  const merged = [...current];
+  for (const store of incoming) {
+    if (store && !seen.has(store.id)) {
+      seen.add(store.id);
+      merged.push(store);
+    }
+  }
+  return merged;
+};
+
+app.post('/api/gemini-test', async (req, res) => {
+  try {
+    const { message } = req.body || {};
+    if (!message || !String(message).trim()) {
+      return res.status(400).json({ error: 'A message is required.' });
+    }
+    const responseText = await askGemini(String(message).trim());
+    return res.json({ success: true, responseText });
+  } catch (error) {
+    const isMissingKey = String(error.message).includes('GEMINI_API_KEY');
+    return res.status(isMissingKey ? 503 : 500).json({ error: error.message || 'Gemini connection failed.' });
+  }
+});
 
 app.get('/api/message', (req, res) => {
   res.json({

@@ -1,12 +1,34 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './CategoriesOverview.css';
 import { categories } from '../../data/mockData';
 import Button from '../../components/Button/Button';
 import CategoryIcon from '../../components/CategoryIcon/CategoryIcon';
+import { getStores } from '../../firebase/firebaseService';
 import { useI18n } from '../../i18n/I18nContext';
 
 const CategoriesOverview = ({ onNavigate }) => {
   const { t } = useI18n();
+  const [stores, setStores] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getStores()
+      .then((data) => {
+        if (!cancelled) {
+          setStores(data);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const countFor = (categoryName) =>
+    stores.reduce((sum, store) => sum + (store.category === categoryName ? 1 : 0), 0);
+
+  const totalStores = stores.length;
+
   return (
     <div className="categories-overview-page">
       <div className="categories-overview__breadcrumb">
@@ -41,10 +63,13 @@ const CategoriesOverview = ({ onNavigate }) => {
               <CategoryIcon category={category.name} size={26} />
             </span>
             <h3>{t('category.' + category.id)}</h3>
-            <p>{t('categories.pagesAvailable', { count: category.count })}</p>
+            <p>{t('categories.pagesAvailable', { count: countFor(category.name) })}</p>
           </button>
         ))}
       </div>
+      <p className="categories-overview__total">
+        {t('categories.totalStores', { count: totalStores })}
+      </p>
     </div>
   );
 };

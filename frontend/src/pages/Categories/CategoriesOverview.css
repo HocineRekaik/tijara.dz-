@@ -57,6 +57,13 @@
   }
 }
 
+.categories-overview__total {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
 .category-overview-card {
   text-align: right;
   border: none;
