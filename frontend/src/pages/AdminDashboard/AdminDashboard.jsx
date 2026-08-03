@@ -92,7 +92,12 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
       setStores(storesData);
       setReports(reportsData);
-      setSelectedStore((prev) => prev || storesData[0] || null);
+      setSelectedStore((prev) => {
+        if (!prev) {
+          return null;
+        }
+        return storesData.find((store) => store.id === prev.id) || null;
+      });
     } catch (error) {
       setActionMessage(error.message || t('admin.loadError'));
     } finally {
