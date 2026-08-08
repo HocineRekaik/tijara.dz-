@@ -30,7 +30,6 @@ const Card = ({
             </span>
           </div>
         )}
-        <span className="card-category">{category}</span>
       </div>
       <div className="card-content">
         <div className="card-header-row">
@@ -44,6 +43,7 @@ const Card = ({
             </div>
           ) : null}
         </div>
+        {category && <span className="card-category-chip">{category}</span>}
         <p className="card-description">{description}</p>
 
         {tags.length > 0 && (

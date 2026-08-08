@@ -33,11 +33,12 @@ const StoreCard = ({ store, onViewStore }) => {
             </span>
           </div>
         )}
-        <span className="store-card__category-tag">{category}</span>
       </div>
 
       {/* Content */}
       <div className="store-card__body">
+        {category && <span className="store-card__category-chip">{category}</span>}
+
         <h3 className="store-card__title">{title}</h3>
 
         <div className="store-card__meta">

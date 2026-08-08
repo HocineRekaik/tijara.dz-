@@ -81,19 +81,17 @@
   opacity: 0.6;
 }
 
-.store-card__category-tag {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background-color: rgba(17, 24, 39, 0.78);
-  color: #ffffff;
-  padding: 0.25rem 0.65rem;
-  border-radius: 8px;
+.store-card__category-chip {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  background-color: rgba(15, 118, 110, 0.1);
+  border: 1px solid rgba(15, 118, 110, 0.25);
+  color: var(--accent-color);
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
   font-size: 0.72rem;
   font-weight: 700;
-  backdrop-filter: blur(8px);
-  z-index: 1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Body area */
