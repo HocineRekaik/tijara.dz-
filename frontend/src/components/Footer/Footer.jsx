@@ -1,7 +1,7 @@
 import React from 'react';
 import './Footer.css';
 import { useI18n } from '../../i18n/I18nContext';
-import { Globe, Camera, Briefcase } from 'lucide-react';
+import { Globe, Mail, Briefcase } from 'lucide-react';
 
 const Footer = () => {
   const { t } = useI18n();
@@ -19,9 +19,9 @@ const Footer = () => {
             {t('footer.desc')}
           </p>
           <div className="footer-socials">
-            <a href="#fb" aria-label="Facebook"><Globe size={16} /> {t('footer.facebook')}</a>
-            <a href="#ig" aria-label="Instagram"><Camera size={16} /> {t('footer.instagram')}</a>
-            <a href="#li" aria-label="LinkedIn"><Briefcase size={16} /> {t('footer.linkedin')}</a>
+            <a href="https://www.facebook.com/share/198FmsAAAf/" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><Globe size={16} /> {t('footer.facebook')}</a>
+            <a href="mailto:h_rekaik@estin.dz" aria-label="Email"><Mail size={16} /> {t('footer.email')}</a>
+            <a href="https://www.linkedin.com/in/hocine-rekaik-a76a88425" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><Briefcase size={16} /> {t('footer.linkedin')}</a>
           </div>
         </div>
 

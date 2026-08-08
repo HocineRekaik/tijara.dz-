@@ -45,8 +45,7 @@ export const translations = {
     'footer.email': 'البريد الإلكتروني',
     'footer.subscribe': 'اشترك',
     'footer.rights': '© {year} Tijara.dz. جميع الحقوق محفوظة. صنع بكل حب في الجزائر',
-    'footer.facebook': 'فيسبوك',
-    'footer.instagram': 'إنستغرام',
+'footer.facebook': 'فيسبوك',
     'footer.linkedin': 'لينكد إن',
 
     'card.rating': 'تقييم',
@@ -451,8 +450,7 @@ export const translations = {
     'footer.email': 'Adresse e-mail',
     'footer.subscribe': "S'abonner",
     'footer.rights': '© {year} Tijara.dz. Tous droits réservés. Fait avec amour en Algérie',
-    'footer.facebook': 'Facebook',
-    'footer.instagram': 'Instagram',
+'footer.facebook': 'Facebook',
     'footer.linkedin': 'LinkedIn',
 
     'card.rating': 'Avis',
@@ -857,8 +855,7 @@ export const translations = {
     'footer.email': 'Email address',
     'footer.subscribe': 'Subscribe',
     'footer.rights': '© {year} Tijara.dz. All rights reserved. Made with love in Algeria',
-    'footer.facebook': 'Facebook',
-    'footer.instagram': 'Instagram',
+'footer.facebook': 'Facebook',
     'footer.linkedin': 'LinkedIn',
 
     'card.rating': 'Rating',
