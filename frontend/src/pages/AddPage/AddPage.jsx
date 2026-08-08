@@ -8,6 +8,8 @@ import useImageUploads from '../../hooks/useImageUploads';
 import { MainImageField, GalleryImageField } from '../../components/ImageUploader/ImageUploader';
 import { useI18n } from '../../i18n/I18nContext';
 
+import { extractUsernameFromUrl, fetchAuthorizedSocialMetadata } from '../../utils/socialImportUtils';
+
 const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
   const { t } = useI18n();
   const [formValues, setFormValues] = useState({
@@ -25,6 +27,13 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
     whatsapp: '',
     description: '',
   });
+  const [userEditedFields, setUserEditedFields] = useState({
+    title: false,
+    description: false,
+    phone: false,
+  });
+  const [autoNotice, setAutoNotice] = useState('');
+  const [titleError, setTitleError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -46,7 +55,7 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
         if (cancelled || !store) {
           return;
         }
-        if (store.sellerId !== currentUser.uid) {
+        if (store.sellerId && store.sellerId !== currentUser.uid) {
           setSubmitError(t('addpage.notOwnerError'));
           return;
         }
@@ -72,14 +81,87 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
     };
   }, [currentUser, editingStoreId, resetUploads]);
 
+  const looksLikeUrl = (str) => /https?:\/\/|www\.|instagram\.com|facebook\.com|tiktok\.com/i.test(str);
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
+    if (['title', 'description', 'phone'].includes(name)) {
+      setUserEditedFields((prev) => ({ ...prev, [name]: true }));
+    }
+    // Warn if user accidentally pastes a URL into the title field
+    if (name === 'title') {
+      if (looksLikeUrl(value)) {
+        setTitleError(t('addpage.titleUrlError') || 'يبدو أن هذا رابط وليس اسماً — يرجى كتابة اسم الصفحة فقط (مثال: Eternel Store)');
+      } else {
+        setTitleError('');
+      }
+    }
+  };
+
+  const handleSocialBlur = async (platform, value) => {
+    if (!value || !value.trim()) return;
+
+    const { suggestedTitle } = extractUsernameFromUrl(platform, value);
+    const updates = {};
+    const importedItems = [];
+
+    // 1. Suggest title from username if title is not manually edited and empty.
+    // Never suggest a raw URL as the title — only clean handles/names.
+    if (!userEditedFields.title && !formValues.title.trim() && suggestedTitle && !looksLikeUrl(suggestedTitle)) {
+      updates.title = suggestedTitle;
+      importedItems.push(t('addpage.autoTitle') || 'اسم الصفحة');
+    }
+
+    // 2. Fetch authorized API metadata (bio, phone number, profile image)
+    try {
+      const meta = await fetchAuthorizedSocialMetadata(platform, value);
+
+      if (meta.title && !userEditedFields.title && !formValues.title.trim() && !updates.title) {
+        updates.title = meta.title;
+        if (!importedItems.includes('اسم الصفحة')) {
+          importedItems.push(t('addpage.autoTitle') || 'اسم الصفحة');
+        }
+      }
+
+      if (meta.bio && !userEditedFields.description && !formValues.description.trim()) {
+        updates.description = meta.bio;
+        importedItems.push(t('addpage.autoBio') || 'الوصف');
+      }
+
+      if (meta.phone && !userEditedFields.phone && !formValues.phone.trim()) {
+        updates.phone = meta.phone;
+        importedItems.push(t('addpage.autoPhone') || 'رقم الهاتف');
+      }
+
+      if (meta.profileImage && !uploads.mainUrl && !uploads.mainPreview) {
+        uploads.setSuggestedMainUrl(meta.profileImage);
+        importedItems.push(t('addpage.autoImage') || 'الصورة الرئيسية');
+      }
+    } catch {
+      // Non-blocking fallback
+    }
+
+    if (Object.keys(updates).length > 0) {
+      setFormValues((prev) => ({ ...prev, ...updates }));
+    }
+
+    if (importedItems.length > 0) {
+      setAutoNotice(
+        `💡 تم اقتراح (${importedItems.join('، ')}) تلقائياً من رابط ${platform} — يمكنك تعديل جميع البيانات بحرية قبل الإرسال.`
+      );
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitError('');
+
+    // Block submission if the title looks like a URL
+    if (looksLikeUrl(formValues.title)) {
+      setTitleError(t('addpage.titleUrlError') || 'يبدو أن هذا رابط وليس اسماً — يرجى كتابة اسم الصفحة فقط (مثال: Eternel Store)');
+      return;
+    }
 
     if (!currentUser) {
       onNavigate('auth', { redirect: 'add-page' });
@@ -117,6 +199,7 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
       setSubmitting(false);
     }
   };
+
 
   return (
     <div className="add-page">
@@ -176,7 +259,13 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                   onChange={handleChange}
                   placeholder={t('addpage.titlePlaceholder')}
                   required
+                  style={titleError ? { borderColor: '#e74c3c' } : {}}
                 />
+                {titleError && (
+                  <span style={{ color: '#e74c3c', fontSize: '0.82rem', marginTop: '4px', display: 'block' }}>
+                    ⚠️ {titleError}
+                  </span>
+                )}
               </label>
 
               <label>
@@ -276,6 +365,7 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                   name="instagram"
                   value={formValues.instagram}
                   onChange={handleChange}
+                  onBlur={(e) => handleSocialBlur('instagram', e.target.value)}
                   placeholder="@yourbusiness"
                 />
               </label>
@@ -286,6 +376,7 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                   name="facebook"
                   value={formValues.facebook}
                   onChange={handleChange}
+                  onBlur={(e) => handleSocialBlur('facebook', e.target.value)}
                   placeholder="facebook.com/yourpage"
                 />
               </label>
@@ -296,10 +387,18 @@ const AddPage = ({ currentUser, onNavigate, editingStoreId }) => {
                   name="tiktok"
                   value={formValues.tiktok}
                   onChange={handleChange}
+                  onBlur={(e) => handleSocialBlur('tiktok', e.target.value)}
                   placeholder="@yourtiktok"
                 />
               </label>
             </div>
+
+            {autoNotice && (
+              <div className="form-info-notice" style={{ background: 'rgba(15, 118, 110, 0.08)', border: '1px solid rgba(15, 118, 110, 0.25)', color: 'var(--accent-color)', padding: '0.85rem 1.1rem', borderRadius: '12px', fontSize: '0.88rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                {autoNotice}
+              </div>
+            )}
+
 
             <label className="form-fullwidth">
               {t('addpage.descriptionField')}

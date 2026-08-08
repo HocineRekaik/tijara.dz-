@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './AdminDashboard.css';
 import Button from '../../components/Button/Button';
 import { categories, wilayas } from '../../data/mockData';
@@ -51,6 +51,14 @@ const emptyForm = {
   description: '',
 };
 
+const sanitizeTitle = (title, fallback = '—') => {
+  if (!title) return fallback;
+  if (/https?:\/\/|www\.|instagram\.com|facebook\.com|tiktok\.com/i.test(title)) {
+    return '⚠️ رابط بدل الاسم';
+  }
+  return title;
+};
+
 const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
   const { t, lang } = useI18n();
   const [stores, setStores] = useState([]);
@@ -66,6 +74,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const uploads = useImageUploads({});
+  const formRef = useRef(null);
 
   const isAdmin = adminVerified === true;
 
@@ -137,6 +146,12 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
     }
   }, [currentUser, isAdmin, loadData]);
 
+  useEffect(() => {
+    if (formOpen && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [formOpen]);
+
   const startCreate = () => {
     setEditingStore(null);
     setFormValues(emptyForm);
@@ -183,13 +198,16 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
         ...formValues,
         profileImageUrl: mainUrl,
         galleryImages: galleryUrls,
-        sellerId: currentUser.uid,
-        sellerEmail: currentUser.email,
       };
 
       if (wasEditing) {
+        payload.sellerId = editingStore.sellerId || currentUser.uid;
+        payload.sellerEmail = editingStore.sellerEmail || currentUser.email;
+        payload.status = editingStore.status;
         await updateStoreDirectly(editingStore.id, payload);
       } else {
+        payload.sellerId = currentUser.uid;
+        payload.sellerEmail = currentUser.email;
         await createStoreDirectly(payload);
       }
 
@@ -318,7 +336,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
 
       <div className="admin-dashboard__main">
         {formOpen && (
-          <form className="admin-store-form" onSubmit={handleFormSubmit}>
+          <form className="admin-store-form" onSubmit={handleFormSubmit} ref={formRef}>
             <div className="admin-store-form__header">
               <h3>{editingStore ? t('admin.formTitleEdit') : t('admin.formTitleAdd')}</h3>
               <p>
@@ -500,7 +518,7 @@ const AdminDashboard = ({ onNavigate, currentUser, onLogout }) => {
                   onClick={() => setSelectedStore(store)}
                 >
                   <div>
-                    <h3>{store.title || t('admin.untitled')}</h3>
+                    <h3>{sanitizeTitle(store.title, t('admin.untitled'))}</h3>
                     <p>{t('category.' + store.category) || t('admin.noCategory')} • {store.wilaya || t('admin.noWilaya')}</p>
                     <p className="store-row__date">
                       {store.createdAt?.toDate
